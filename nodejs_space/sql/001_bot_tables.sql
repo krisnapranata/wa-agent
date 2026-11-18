@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS broadcast_numbers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama_petugas VARCHAR(100) NOT NULL,
+    nomor_wa VARCHAR(20) NOT NULL UNIQUE,
+    aktif TINYINT(1) NOT NULL DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Contoh isi:
+INSERT INTO broadcast_numbers (nama_petugas, nomor_wa, aktif) VALUES ('Ns. Rina', '6281234567890', 1);

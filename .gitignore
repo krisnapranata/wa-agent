@@ -1,0 +1,22 @@
+# Secrets
+.env
+.env.*
+!.env.example
+.abacus.donotdelete
+
+# Build / deps
+node_modules/
+dist/
+*.tsbuildinfo
+.yarn/
+
+# WhatsApp session/auth data
+auth_info*/
+.wwebjs_auth/
+.wwebjs_cache/
+sessions/
+
+# Misc
+*.log
+.DS_Store
+coverage/
