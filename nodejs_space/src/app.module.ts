@@ -5,9 +5,10 @@ import { DatabaseModule } from './database/database.module';
 import { HospitalModule } from './hospital/hospital.module';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { BroadcastModule } from './broadcast/broadcast.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), DatabaseModule, HospitalModule, WhatsappModule, BroadcastModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), DatabaseModule, HospitalModule, WhatsappModule, BroadcastModule, DashboardModule],
   controllers: [AppController],
 })
 export class AppModule {}

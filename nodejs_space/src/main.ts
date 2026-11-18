@@ -52,6 +52,6 @@ async function bootstrap() {
   });
 
   await app.listen(process.env.PORT ?? 3000);
-  Logger.log(`Service berjalan di port ${process.env.PORT ?? 3000} — dokumentasi API: /api-docs`, 'Bootstrap');
+  Logger.log(`Service berjalan di port ${process.env.PORT ?? 3000} — dashboard: /dashboard, dokumentasi API: /api-docs`, 'Bootstrap');
 }
 bootstrap();

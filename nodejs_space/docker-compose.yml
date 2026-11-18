@@ -1,0 +1,65 @@
+# wabot — produksi (server bersama di belakang Nginx Proxy Manager). Jalankan dari folder nodejs_space/:
+#   cp deploy/env.production.contoh .env.production     # lalu isi
+#   docker compose up -d --build
+# Database SIMRS TIDAK ada di sini: bot membaca MySQL SIMRS yang sudah ada (DB_HOST di .env.production).
+# Container & volume berawalan "wabot" supaya tidak bentrok dengan aplikasi lain di host.
+# Mesin pengembang: docker-compose.lokal.yml.
+name: wabot
+
+x-app: &app
+  image: wabot-web:latest
+  restart: unless-stopped
+  init: true                    # PID 1 kecil: sinyal stop diteruskan ke node
+  env_file: .env.production
+  extra_hosts:
+    - "host.docker.internal:host-gateway"   # bila MySQL SIMRS ada di host yang sama: DB_HOST=host.docker.internal
+
+services:
+  web:
+    <<: *app
+    build: .
+    container_name: wabot_web
+    command: ["web"]
+    environment:
+      PORT: "3000"
+    volumes:
+      - wa_sessions:/app/wa_sessions          # hanya dipakai bila AUTH_STORE=file
+
+  scheduler:
+    <<: *app
+    pull_policy: never          # image dibangun oleh service web
+    container_name: wabot_scheduler
+    command: ["scheduler"]
+    environment:
+      SCHEDULER_TARGET: http://wabot_web:3000
+    healthcheck:
+      disable: true             # HEALTHCHECK image memeriksa HTTP; scheduler tidak melayani HTTP
+    depends_on:
+      web:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: wabot_nginx
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8030}:80"  # satu-satunya port yang dibuka ke host
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - default
+      - npm                     # NPM memanggil "wabot_nginx:80" tanpa IP
+
+networks:
+  # Network milik Nginx Proxy Manager. Cek namanya di server:
+  #   docker inspect <container-npm> -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}'
+  # Bila berbeda: tulis NPM_NETWORK=nama_network di berkas .env (folder ini).
+  npm:
+    external: true
+    name: ${NPM_NETWORK:-proxy_default}
+
+volumes:
+  wa_sessions:

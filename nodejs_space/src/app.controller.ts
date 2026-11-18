@@ -9,6 +9,13 @@ import { WhatsappService } from './whatsapp/whatsapp.service';
 export class AppController {
   constructor(private readonly wa: WhatsappService, private readonly db: DatabaseService, private readonly hospital: HospitalService) {}
 
+  /** Healthcheck ringan untuk Docker: tanpa query DB, tanpa API key */
+  @Get('healthz')
+  @ApiOperation({ summary: 'Healthcheck (selalu "ok" bila proses HTTP hidup)' })
+  healthz() {
+    return 'ok';
+  }
+
   @Get('status')
   @ApiOperation({ summary: 'Status koneksi WhatsApp, database, dan jumlah pasien alert' })
   async status() {

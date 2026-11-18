@@ -1,0 +1,38 @@
+# PENGEMBANGAN LOKAL: wabot di port 8030 memakai MySQL yang bisa dijangkau dari host (DB_HOST di .env).
+#   docker compose -f docker-compose.lokal.yml up -d --build
+# network_mode: host → DB_HOST=localhost di .env merujuk ke host, bukan ke container.
+# Port 8030 dipakai karena 3000 sudah terpakai di host ini.
+name: wabot-lokal
+
+x-app: &app
+  build: .
+  image: wabot:lokal
+  env_file: .env
+  network_mode: host
+  init: true
+  restart: unless-stopped
+
+services:
+  web:
+    <<: *app
+    container_name: wabot-web
+    command: ["web"]
+    environment:
+      PORT: "8030"
+    volumes:
+      - wabot_wa_sessions:/app/wa_sessions
+
+  scheduler:
+    <<: *app
+    container_name: wabot-scheduler
+    command: ["scheduler"]
+    environment:
+      SCHEDULER_TARGET: http://127.0.0.1:8030
+    healthcheck:
+      disable: true
+    depends_on:
+      web:
+        condition: service_healthy
+
+volumes:
+  wabot_wa_sessions:
